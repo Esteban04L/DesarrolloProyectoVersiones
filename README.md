@@ -1,0 +1,1 @@
+Artventory es una aplicación web diseñada para gestionar el inventario de Country Art, una tienda de artesanías. Este sistema permite el control total sobre productos, stock, categorías, movimientos de inventario y alertas automáticas de stock bajo, con una interfaz sencilla y moderna para facilitar el trabajo administrativo.
