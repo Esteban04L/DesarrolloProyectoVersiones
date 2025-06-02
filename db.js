@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const conexion = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '', // Coloca tu contraseña si tienes
+    password: '1234',
     database: 'artventory_db'
 });
 
