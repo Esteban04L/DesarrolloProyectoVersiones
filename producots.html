@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artventory - Gestión</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #f59e0b;
+      --primary-dark: #d97706;
+      --secondary: #000000;
+      --light: #f8fafc;
+      --dark: #3c3c3c;
+    }
+    
+    #bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(43, 43, 43, 0.6);
+      z-index: -1;
+    }
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-weight: 500;
+      font-size: 1.8rem;
+    }
+    
+    .navbar {
+      background: linear-gradient(135deg, var(--secondary), var(--dark));
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .nav-link {
+      color: var(--light) !important;
+      font-weight: 500;
+      padding: 0.5rem 1.2rem !important;
+      margin: 0 0.2rem;
+      border-radius: 0.5rem;
+      transition: all 0.3s;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      background-color: var(--primary) !important;
+      color: var(--dark) !important;
+      transform: translateY(-2px);
+    }
+    
+    .card {
+      border: none;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      background: white;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    
+    .card-img-top {
+      height: 250px;
+      object-fit: cover;
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-danger {
+      background-color: #ef4444;
+      border: none;
+    }
+    
+    .modal-content {
+      border-radius: 1rem;
+      border: none;
+    }
+    
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border-radius: 1rem 1rem 0 0 !important;
+    }
+    
+    .modal-lg {
+      max-width: 800px;
+    }
+    
+    .tab-content {
+      padding: 2rem 0;
+    }
+    
+    .alert-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    
+    .product-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 0.8rem;
+    }
+    
+    .action-buttons .btn {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+    <video autoplay muted loop id="bg-video">
+    <source src="/video.mp4" type="video/mp4" />
+    Tu navegador no soporta videos HTML5.
+  </video>
+
+  <div class="overlay"></div>
+  <div class="overlay"></div>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="#">Artventory</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" id="tab-productos">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="tab-proveedores">Proveedores</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" onclick="mostrarFormularioProducto()">
+              <i class="fas fa-plus me-2"></i>Agregar Producto
+            </a>
+          </li>
+          <li class="nav-item ms-2">
+            <a class="nav-link text-danger" onclick="logout()">
+              <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <!-- Contenido de Productos -->
+    <div id="productos-content">
+      <div class="d-flex justify-content-between align-items-center mb-4 text-white">
+        <h2 class="mb-0">Gestión de Productos</h2>
+        <button class="btn btn-primary" onclick="mostrarFormularioProducto()">
+          <i class="fas fa-plus me-2"></i>Nuevo Producto
+        </button>
+      </div>
+      
+      <div id="productos" class="row g-4"></div>
+    </div>
+    
+    <!-- Contenido de Proveedores -->
+    <div id="proveedores-content" style="display: none;">
+      <div class="d-flex justify-content-between align-items-center mb-4 text-white">
+        <h2 class="mb-0">Gestión de Proveedores</h2>
+        <button class="btn btn-primary" onclick="mostrarFormularioProveedor()">
+          <i class="fas fa-plus me-2"></i>Nuevo Proveedor
+        </button>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-4 text-white">
+        <h2 class="mb-0">Muy prontooo...</h2>
+      </div>
+
+      <div id="proveedores" class="row g-4"></div>
+    </div>
+    
+  </div>
+
+  <!-- Modal Producto -->
+  <div class="modal fade" id="modalProducto" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalle del Producto</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <img id="imgProducto" src="" alt="Imagen" class="img-fluid rounded mb-3">
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-danger" onclick="eliminarProducto()">
+                  <i class="fas fa-trash me-2"></i>Eliminar Producto
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input id="editNombre" class="form-control form-control-lg">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Categoría</label>
+                <input id="editCategoria" class="form-control form-control-lg">
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Cantidad</label>
+                  <input id="editCantidad" type="number" class="form-control form-control-lg">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Precio</label>
+                  <input id="editPrecio" type="number" class="form-control form-control-lg">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea id="editDescripcion" class="form-control form-control-lg" rows="3"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">URL de imagen</label>
+                <input id="editImagen" class="form-control form-control-lg">
+              </div>
+              <div class="d-grid">
+                <button class="btn btn-primary btn-lg" onclick="guardarEdicionProducto()">
+                  <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agregar Producto -->
+  <div class="modal fade" id="modalAgregarProducto" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar Producto</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formAgregarProducto">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" id="nuevoNombre" class="form-control form-control-lg" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Categoría</label>
+              <input type="text" id="nuevaCategoria" class="form-control form-control-lg" required>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Cantidad</label>
+                <input type="number" id="nuevaCantidad" class="form-control form-control-lg" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Precio</label>
+                <input type="number" id="nuevoPrecio" class="form-control form-control-lg" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descripción</label>
+              <textarea id="nuevaDescripcion" class="form-control form-control-lg" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">URL de Imagen</label>
+              <input type="text" id="nuevaImagen" class="form-control form-control-lg" required>
+            </div>
+            <div class="d-grid">
+              <button class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Guardar Producto
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Proveedor -->
+  <div class="modal fade" id="modalProveedor" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalle del Proveedor</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input id="editProvNombre" class="form-control form-control-lg">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Contacto</label>
+                <input id="editProvContacto" class="form-control form-control-lg">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Teléfono</label>
+                <input id="editProvTelefono" class="form-control form-control-lg">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input id="editProvEmail" type="email" class="form-control form-control-lg">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Dirección</label>
+                <textarea id="editProvDireccion" class="form-control form-control-lg" rows="3"></textarea>
+              </div>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-danger" onclick="eliminarProveedor()">
+                  <i class="fas fa-trash me-2"></i>Eliminar Proveedor
+                </button>
+                <button class="btn btn-primary" onclick="guardarEdicionProveedor()">
+                  <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agregar Proveedor -->
+  <div class="modal fade" id="modalAgregarProveedor" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar Proveedor</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formAgregarProveedor">
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" id="nuevoProvNombre" class="form-control form-control-lg" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Contacto</label>
+              <input type="text" id="nuevoProvContacto" class="form-control form-control-lg" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="text" id="nuevoProvTelefono" class="form-control form-control-lg" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" id="nuevoProvEmail" class="form-control form-control-lg" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Dirección</label>
+              <textarea id="nuevoProvDireccion" class="form-control form-control-lg" rows="3" required></textarea>
+            </div>
+            <div class="d-grid">
+              <button class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Guardar Proveedor
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Alerta Proveedor -->
+  <div class="modal fade" id="modalCorreo" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Enviar Alerta al Proveedor</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Correo del proveedor</label>
+            <input type="email" id="correoProveedor" class="form-control form-control-lg">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mensaje</label>
+            <textarea id="mensajeCorreo" class="form-control form-control-lg" rows="4"></textarea>
+          </div>
+          <div class="d-grid">
+            <button class="btn btn-danger btn-lg" onclick="enviarCorreo()">
+              <i class="fas fa-paper-plane me-2"></i>Enviar Alerta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let productoSeleccionado = null;
+    let proveedorSeleccionado = null;
+    let currentTab = 'productos';
+
+    // Cargar datos iniciales
+    document.addEventListener('DOMContentLoaded', function() {
+      cargarProductos();
+      cargarProveedores();
+      
+      // Configurar tabs
+      document.getElementById('tab-productos').addEventListener('click', function(e) {
+        e.preventDefault();
+        cambiarTab('productos');
+      });
+      
+      document.getElementById('tab-proveedores').addEventListener('click', function(e) {
+        e.preventDefault();
+        cambiarTab('proveedores');
+      });
+    });
+
+    function cambiarTab(tab) {
+      currentTab = tab;
+      if (tab === 'productos') {
+        document.getElementById('productos-content').style.display = 'block';
+        document.getElementById('proveedores-content').style.display = 'none';
+        document.getElementById('tab-productos').classList.add('active');
+        document.getElementById('tab-proveedores').classList.remove('active');
+      } else {
+        document.getElementById('productos-content').style.display = 'none';
+        document.getElementById('proveedores-content').style.display = 'block';
+        document.getElementById('tab-productos').classList.remove('active');
+        document.getElementById('tab-proveedores').classList.add('active');
+      }
+    }
+
+    // Funciones para Productos
+    async function cargarProductos() {
+      try {
+        const res = await fetch('/api/productos');
+        const productos = await res.json();
+        const contenedor = document.getElementById('productos');
+        contenedor.innerHTML = '';
+        
+        productos.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'col-md-4 col-lg-3';
+          div.innerHTML = `
+            <div class="card h-100">
+              ${p.cantidad < 3 ? `<span class="badge bg-danger product-badge">Bajo Stock</span>` : ''}
+              <img src="${p.imagen || 'https://via.placeholder.com/300'}" class="card-img-top">
+              <div class="card-body">
+                <h5 class="card-title">${p.nombre}</h5>
+                <p class="card-text text-muted">${p.categoria}</p>
+                <p class="card-text"><strong>Stock:</strong> ${p.cantidad} | <strong>Precio:</strong> $${p.precio}</p>
+                <div class="action-buttons">
+                  <button class="btn btn-outline-primary" onclick='verProducto(${JSON.stringify(p)})'>
+                    <i class="fas fa-edit me-2"></i>Editar
+                  </button>
+                  ${p.cantidad < 3 ? `
+                    <button class="btn btn-danger" onclick="abrirCorreo('${p.nombre}')">
+                      <i class="fas fa-bell me-2"></i>Alertar
+                    </button>` : ''}
+                </div>
+              </div>
+            </div>`;
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error al cargar productos:', error);
+      }
+    }
+
+    function verProducto(p) {
+      productoSeleccionado = p;
+      document.getElementById('imgProducto').src = p.imagen || 'https://via.placeholder.com/300';
+      document.getElementById('editNombre').value = p.nombre;
+      document.getElementById('editCategoria').value = p.categoria;
+      document.getElementById('editCantidad').value = p.cantidad;
+      document.getElementById('editPrecio').value = p.precio;
+      document.getElementById('editDescripcion').value = p.descripcion;
+      document.getElementById('editImagen').value = p.imagen;
+      
+      const modal = new bootstrap.Modal(document.getElementById('modalProducto'));
+      modal.show();
+    }
+
+    async function eliminarProducto() {
+      if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+      
+      try {
+        const res = await fetch(`/api/productos/${productoSeleccionado.id}`, { 
+          method: 'DELETE' 
+        });
+        
+        if (res.ok) {
+          alert('Producto eliminado correctamente');
+          bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide();
+          await cargarProductos();
+        }
+      } catch (error) {
+        console.error('Error al eliminar producto:', error);
+        alert('Error al eliminar el producto');
+      }
+    }
+
+    function mostrarFormularioProducto() {
+      document.getElementById('formAgregarProducto').reset();
+      new bootstrap.Modal(document.getElementById('modalAgregarProducto')).show();
+    }
+
+    document.getElementById('formAgregarProducto').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const data = {
+        nombre: document.getElementById('nuevoNombre').value,
+        categoria: document.getElementById('nuevaCategoria').value,
+        cantidad: document.getElementById('nuevaCantidad').value,
+        precio: document.getElementById('nuevoPrecio').value,
+        descripcion: document.getElementById('nuevaDescripcion').value,
+        imagen: document.getElementById('nuevaImagen').value
+      };
+      
+      try {
+        const res = await fetch('/api/productos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          alert('Producto agregado correctamente');
+          bootstrap.Modal.getInstance(document.getElementById('modalAgregarProducto')).hide();
+          await cargarProductos();
+        }
+      } catch (error) {
+        console.error('Error al agregar producto:', error);
+        alert('Error al agregar el producto');
+      }
+    });
+
+    async function guardarEdicionProducto() {
+      const data = {
+        nombre: document.getElementById('editNombre').value,
+        categoria: document.getElementById('editCategoria').value,
+        cantidad: document.getElementById('editCantidad').value,
+        precio: document.getElementById('editPrecio').value,
+        descripcion: document.getElementById('editDescripcion').value,
+        imagen: document.getElementById('editImagen').value
+      };
+      
+      try {
+        const res = await fetch(`/api/productos/${productoSeleccionado.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          alert('Producto actualizado correctamente');
+          bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide();
+          await cargarProductos();
+        }
+      } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        alert('Error al actualizar el producto');
+      }
+    }
+
+    // Funciones para Proveedores
+    async function cargarProveedores() {
+      try {
+        const res = await fetch('/api/proveedores');
+        const proveedores = await res.json();
+        const contenedor = document.getElementById('proveedores');
+        contenedor.innerHTML = '';
+        
+        proveedores.forEach(prov => {
+          const div = document.createElement('div');
+          div.className = 'col-md-6 col-lg-4';
+          div.innerHTML = `
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">${prov.nombre}</h5>
+                <p class="card-text"><i class="fas fa-user me-2"></i>${prov.contacto}</p>
+                <p class="card-text"><i class="fas fa-phone me-2"></i>${prov.telefono}</p>
+                <p class="card-text"><i class="fas fa-envelope me-2"></i>${prov.email}</p>
+                <button class="btn btn-outline-primary w-100" onclick='verProveedor(${JSON.stringify(prov)})'>
+                  <i class="fas fa-edit me-2"></i>Editar
+                </button>
+              </div>
+            </div>`;
+          contenedor.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Error al cargar proveedores:', error);
+      }
+    }
+
+    function verProveedor(prov) {
+      proveedorSeleccionado = prov;
+      document.getElementById('editProvNombre').value = prov.nombre;
+      document.getElementById('editProvContacto').value = prov.contacto;
+      document.getElementById('editProvTelefono').value = prov.telefono;
+      document.getElementById('editProvEmail').value = prov.email;
+      document.getElementById('editProvDireccion').value = prov.direccion;
+      
+      const modal = new bootstrap.Modal(document.getElementById('modalProveedor'));
+      modal.show();
+    }
+
+    function mostrarFormularioProveedor() {
+      document.getElementById('formAgregarProveedor').reset();
+      new bootstrap.Modal(document.getElementById('modalAgregarProveedor')).show();
+    }
+
+    document.getElementById('formAgregarProveedor').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const data = {
+        nombre: document.getElementById('nuevoProvNombre').value,
+        contacto: document.getElementById('nuevoProvContacto').value,
+        telefono: document.getElementById('nuevoProvTelefono').value,
+        email: document.getElementById('nuevoProvEmail').value,
+        direccion: document.getElementById('nuevoProvDireccion').value
+      };
+      
+      try {
+        const res = await fetch('/api/proveedores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          alert('Proveedor agregado correctamente');
+          bootstrap.Modal.getInstance(document.getElementById('modalAgregarProveedor')).hide();
+          await cargarProveedores();
+        }
+      } catch (error) {
+        console.error('Error al agregar proveedor:', error);
+        alert('Error al agregar el proveedor');
+      }
+    });
+
+    async function guardarEdicionProveedor() {
+      const data = {
+        nombre: document.getElementById('editProvNombre').value,
+        contacto: document.getElementById('editProvContacto').value,
+        telefono: document.getElementById('editProvTelefono').value,
+        email: document.getElementById('editProvEmail').value,
+        direccion: document.getElementById('editProvDireccion').value
+      };
+      
+      try {
+        const res = await fetch(`/api/proveedores/${proveedorSeleccionado.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (res.ok) {
+          alert('Proveedor actualizado correctamente');
+          bootstrap.Modal.getInstance(document.getElementById('modalProveedor')).hide();
+          await cargarProveedores();
+        }
+      } catch (error) {
+        console.error('Error al actualizar proveedor:', error);
+        alert('Error al actualizar el proveedor');
+      }
+    }
+
+    async function eliminarProveedor() {
+      if (!confirm('¿Estás seguro de que deseas eliminar este proveedor?')) return;
+      
+      try {
+        const res = await fetch(`/api/proveedores/${proveedorSeleccionado.id}`, { 
+          method: 'DELETE' 
+        });
+        
+        if (res.ok) {
+          alert('Proveedor eliminado correctamente');
+          bootstrap.Modal.getInstance(document.getElementById('modalProveedor')).hide();
+          await cargarProveedores();
+        }
+      } catch (error) {
+        console.error('Error al eliminar proveedor:', error);
+        alert('Error al eliminar el proveedor');
+      }
+    }
+
+    // Funciones comunes
+    function abrirCorreo(nombre) {
+      document.getElementById('mensajeCorreo').value = `Estimado proveedor, el producto "${nombre}" tiene un stock bajo y necesita ser repuesto. Por favor contáctenos para coordinar el envío.`;
+      new bootstrap.Modal(document.getElementById('modalCorreo')).show();
+    }
+
+    function enviarCorreo() {
+      const correo = document.getElementById('correoProveedor').value;
+      const mensaje = document.getElementById('mensajeCorreo').value;
+      
+      if (!correo) {
+        alert('Por favor ingrese un correo electrónico');
+        return;
+      }
+      
+      // Aquí iría la lógica real para enviar el correo
+      alert(`Correo enviado a ${correo} con el mensaje:\n\n${mensaje}`);
+      bootstrap.Modal.getInstance(document.getElementById('modalCorreo')).hide();
+    }
+
+    function logout() {
+      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+        window.location.href = '/';
+      }
+    }
+  </script>
+</body>
+</html>
